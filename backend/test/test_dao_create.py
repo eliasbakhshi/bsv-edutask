@@ -9,10 +9,25 @@ from pymongo.errors import WriteError
 def create_data():
     return {
         "name": "Jane",
-        "age": 25,
+        "age": 1,
         "email": "jane.doe@gmail.com",
     }
 
+@pytest.fixture
+def invalid_data():
+    return {
+        "name": 1,
+        "age": "Jane",
+        "email": 1,
+    }
+
+@pytest.fixture
+def partially_invalid_data():
+    return {
+        "name": 1,
+        "age": 1,
+        "email": "jane.doe@gmail.com",
+    }
 
 @pytest.fixture
 def mock_getValidator():
@@ -56,28 +71,53 @@ pytestmark = pytest.mark.create_collection
 #     # Assert that the collection was created successfully
 #     assert dao.collection.name == 'test_users'
 
-
 def test_create_user(mock_getValidator, create_data):
     dao = DAO('test_users')
     created_user = dao.create(create_data)
     create_data_with_id = {**create_data, "_id": created_user["_id"]}
     assert created_user == create_data_with_id
 
-    dao.delete(created_user["_id"])
+    dao.collection.drop()
+    # dao.delete(created_user["_id"]["$oid"])
 
+def test_create_user_invalid_data(mock_getValidator, invalid_data):
+    dao = DAO('test_users')
 
+    with pytest.raises(WriteError) as result:
+      dao.create(invalid_data)
+
+    dao.collection.drop()
+
+def test_create_user_partially_invalid_data(mock_getValidator, partially_invalid_data):
+    dao = DAO('test_users')
+
+    try:
+      with pytest.raises(WriteError) as result:
+        dao.create(partially_invalid_data)
+
+    finally:
+      dao.collection.drop()
+
+@pytest.mark.new_test
 def test_create_user_same_email(mock_getValidator, create_data):
     dao = DAO('test_users')
-    created_user = dao.create(create_data)
-    created_user2 = dao.create(create_data)
-    with pytest.raises(WriteError) as result:
-        print(result)
+    dao.create(create_data)
+
+    try:
+      with pytest.raises(WriteError) as result:
+        dao.create(create_data)
+
+    finally:  
+      dao.collection.drop()
+
+    # dao.delete(created_user["_id"]["$oid"])
+    # dao.delete(str(created_user["_id"]))
+      # print(result)
     # check the the email does not exist
     # existing_user = dao.collection.find_one({"email": create_data["email"]})
     # print(f"Existing user 222222222222222222222222: {existing_user}")
     # assert existing_user is None, f"User with email {create_data['email']} already exists."
 
-    dao.delete(created_user["_id"])
 
 
 # def test_create_user(mock_getValidator, create_data):

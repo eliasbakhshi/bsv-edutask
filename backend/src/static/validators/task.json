@@ -1,5 +1,5 @@
 {
-    "$jsonSchema": {
+    "$jsonSchema": {  
         "bsonType": "object",
         "required": ["title", "description"],
         "properties": {
