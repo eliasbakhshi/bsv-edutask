@@ -61,7 +61,6 @@ def mock_getValidator():
         del os.environ['MONGO_URL']
 
 
-pytestmark = pytest.mark.create_collection
 # def test_create_collection(mock_getValidator):
 #     # Create an instance of the DAO class
 #     dao = DAO('test_users')
@@ -70,6 +69,8 @@ pytestmark = pytest.mark.create_collection
 
 #     # Assert that the collection was created successfully
 #     assert dao.collection.name == 'test_users'
+
+pytestmark = pytest.mark.create_collection
 
 def test_create_user(mock_getValidator, create_data):
     dao = DAO('test_users')
@@ -83,10 +84,12 @@ def test_create_user(mock_getValidator, create_data):
 def test_create_user_invalid_data(mock_getValidator, invalid_data):
     dao = DAO('test_users')
 
-    with pytest.raises(WriteError) as result:
-      dao.create(invalid_data)
+    try:
+      with pytest.raises(WriteError) as result:
+        dao.create(invalid_data)
 
-    dao.collection.drop()
+    finally:
+      dao.collection.drop()
 
 def test_create_user_partially_invalid_data(mock_getValidator, partially_invalid_data):
     dao = DAO('test_users')
@@ -98,7 +101,6 @@ def test_create_user_partially_invalid_data(mock_getValidator, partially_invalid
     finally:
       dao.collection.drop()
 
-@pytest.mark.new_test
 def test_create_user_same_email(mock_getValidator, create_data):
     dao = DAO('test_users')
     dao.create(create_data)
