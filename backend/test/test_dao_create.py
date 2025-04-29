@@ -30,9 +30,17 @@ def partially_invalid_data():
     }
 
 @pytest.fixture
+def dao(mock_getValidator):
+    os.environ['MONGO_URL'] = "mongodb://root:root@localhost:27017"
+    dao = DAO('test_users')
+    dao.collection.create_index("email", unique=True)
+    yield dao
+    dao.collection.drop()
+    del os.environ['MONGO_URL']
+
+@pytest.fixture
 def mock_getValidator():
     with patch('src.util.dao.getValidator') as mock_getValidator:
-        # Mock the return value of getValidator
         mock_getValidator.return_value = {
             "$jsonSchema": {
                 "bsonType": "object",
@@ -48,88 +56,37 @@ def mock_getValidator():
                     },
                     "email": {
                         "bsonType": "string",
-                        "description": "The email address of a user must be a string.",
+                        "description": "the email address of a user must be determined",
                         "uniqueItems": True
-                    }
+                    },
                 }
             }
         }
-        os.environ['MONGO_URL'] = "mongodb://root:root@localhost:27017"
-
         yield mock_getValidator
 
-        del os.environ['MONGO_URL']
-
-
-# def test_create_collection(mock_getValidator):
-#     # Create an instance of the DAO class
-#     dao = DAO('test_users')
-
-#     print(f"Collection name: {dao.collection.name}")
-
-#     # Assert that the collection was created successfully
-#     assert dao.collection.name == 'test_users'
 
 pytestmark = pytest.mark.create_collection
 
-def test_create_user(mock_getValidator, create_data):
-    dao = DAO('test_users')
+def test_create_user(dao, mock_getValidator, create_data):
     created_user = dao.create(create_data)
     create_data_with_id = {**create_data, "_id": created_user["_id"]}
+    dao.delete(str(created_user["_id"]["$oid"]))
     assert created_user == create_data_with_id
 
-    dao.collection.drop()
-    # dao.delete(created_user["_id"]["$oid"])
-
-def test_create_user_invalid_data(mock_getValidator, invalid_data):
-    dao = DAO('test_users')
-
-    try:
-      with pytest.raises(WriteError) as result:
+def test_create_user_invalid_data(dao, mock_getValidator, invalid_data):
+    with pytest.raises(WriteError) as result:
         dao.create(invalid_data)
+    assert "Document failed validation" in str(result.value)
 
-    finally:
-      dao.collection.drop()
-
-def test_create_user_partially_invalid_data(mock_getValidator, partially_invalid_data):
-    dao = DAO('test_users')
-
-    try:
-      with pytest.raises(WriteError) as result:
+def test_create_user_partially_invalid_data(dao, mock_getValidator, partially_invalid_data):
+    with pytest.raises(WriteError) as result:
         dao.create(partially_invalid_data)
+    assert "Document failed validation" in str(result.value)
 
-    finally:
-      dao.collection.drop()
-
-def test_create_user_same_email(mock_getValidator, create_data):
-    dao = DAO('test_users')
-    dao.create(create_data)
-
-    try:
-      with pytest.raises(WriteError) as result:
+@pytest.mark.new
+def test_create_user_same_email(dao, mock_getValidator, create_data):
+    created_user = dao.create(create_data)
+    with pytest.raises(WriteError) as result:
         dao.create(create_data)
 
-    finally:  
-      dao.collection.drop()
-
-    # dao.delete(created_user["_id"]["$oid"])
-    # dao.delete(str(created_user["_id"]))
-      # print(result)
-    # check the the email does not exist
-    # existing_user = dao.collection.find_one({"email": create_data["email"]})
-    # print(f"Existing user 222222222222222222222222: {existing_user}")
-    # assert existing_user is None, f"User with email {create_data['email']} already exists."
-
-
-
-# def test_create_user(mock_getValidator, create_data):
-#     dao = DAO('test_users')
-#     created_user = dao.create(create_data)
-#     create_data_with_id = {**create_data, "_id": created_user["_id"]}
-#     assert created_user == create_data_with_id
-
-# def test_create_user(mock_getValidator, create_data):
-#     dao = DAO('test_users')
-#     created_user = dao.create(create_data)
-#     create_data_with_id = {**create_data, "_id": created_user["_id"]}
-#     assert created_user == create_data_with_id
+    dao.delete(str(created_user["_id"]["$oid"]))
