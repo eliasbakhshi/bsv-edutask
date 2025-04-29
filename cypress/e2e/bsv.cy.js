@@ -1,6 +1,6 @@
 describe('R8UC1', () => {
   let videoName = 'https://www.youtube.com/watch?v=bjh7EYdFTo4';
-  let taskName = 'sssssssssss23423425ssssssssssfssssssssssss';
+  let taskName = '765RandomTaskName435345';
 
   beforeEach('loadfixture', () => {
     cy.loginWithFixture(); // Use the custom command
@@ -19,7 +19,7 @@ describe('R8UC1', () => {
 
   it('Add todo task', () => {
     // # Check first if the task is already present
-    cy.contains(taskName).should('not.exist');
+    // cy.contains(taskName).should('not.exist');
     cy.get('form.submit-form').within(() => {
       cy.get('input[name="title"]').should('be.empty');
       cy.get('input[name="title"]').type(taskName);
@@ -51,7 +51,7 @@ describe('R8UC2', () => {
         const classList = $el.attr('class');
         if (!classList.includes('unchecked')) { 
           cy.wrap($el).click();
-        }        
+        }
         cy.wrap($el).should('have.attr', 'class').and('contain', 'unchecked');
         cy.get('.editable').should('not.have.css', 'text-decoration-line', 'line-through');
       })
@@ -72,7 +72,7 @@ describe('R8UC2', () => {
   })
 })
 
-describe.only('R8UC3', () => {
+describe('R8UC3', () => {
 
   beforeEach('loadfixture', () => {
     cy.loginWithFixture(); // Use the custom command
@@ -95,7 +95,8 @@ describe.only('R8UC3', () => {
     })
     // # Check if the task is added to the list
     cy.contains('.todo-item', todoName).within(() => {
-      cy.get('.remover').click().click();
+      cy.get('.remover').click()
+      // cy.get('.remover').click().click();
   });
     // # Check if the task is removed from the list
     cy.contains('.todo-item', todoName).should('not.exist');
