@@ -97,7 +97,7 @@ describe('R8UC3', () => {
     cy.contains('.todo-item', todoName).within(() => {
       cy.get('.remover').click()
       // cy.get('.remover').click().click();
-  });
+    });
     // # Check if the task is removed from the list
     cy.contains('.todo-item', todoName).should('not.exist');
 
