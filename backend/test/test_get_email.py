@@ -52,8 +52,6 @@ def test_get_user_by_email(user_data):
   user_controller = UserController(dao=mocked_dao)
   result = user_controller.get_user_by_email(user_data[0]["email"])
 
-
-
   assert result == {'email': 'jane.doe@gmail.com', 'firstName': 'Jane', 'lastName': 'Doe'}
 
 def test_get_users_by_email(users_data, capsys):
