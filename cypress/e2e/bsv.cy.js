@@ -1,47 +1,77 @@
+// describe('R8UC1', () => {
+//   let videoName = 'https://www.youtube.com/watch?v=bjh7EYdFTo4';
+//   let taskName = '765RandomTaskName435345';
+
+//   beforeEach('loadfixture', () => {
+//     cy.loginWithFixture(); 
+//     cy.fistTaskFixture();
+//   });
+
+//   it("Empty field and disable button", () => {
+//     cy.get('form.submit-form').within(() => {
+//       cy.get('input#title[name="title"]').should('be.empty');
+//       cy.get('[type="submit"]').should('be.disabled');
+//       cy.get('input#title[name="title"]').type('Say hello to the world man haha.');
+//       cy.get('[type="submit"]').should('not.be.disabled');
+//       cy.get('input#title[name="title"]').clear();
+//       cy.get('[type="submit"]').should('be.disabled');
+//     });
+//   })
+
+//   it('Add todo task', () => {
+//     // # Check first if the task is already present
+//     // cy.contains(taskName).should('not.exist');
+//     cy.get('form.submit-form').within(() => {
+//       cy.get('input[name="title"]').should('be.empty');
+//       cy.get('input[name="title"]').type(taskName);
+//       cy.get('input[name="url"]').should('be.empty');
+//       cy.get('input[name="url"]').type(videoName);
+//       cy.get('[type="submit"]').click();
+//     })
+//     
+//   });
+// });  
+
 describe('R8UC1', () => {
   let videoName = 'https://www.youtube.com/watch?v=bjh7EYdFTo4';
   let taskName = '765RandomTaskName435345';
 
   beforeEach('loadfixture', () => {
-    cy.loginWithFixture(); // Use the custom command
+    cy.loginWithFixture(); 
+    cy.fistTaskFixture();
   });
 
   it("Empty field and disable button", () => {
-    cy.get('form.submit-form').within(() => {
-      cy.get('input#title[name="title"]').should('be.empty');
-      cy.get('[type="submit"]').should('be.disabled');
-      cy.get('input#title[name="title"]').type('Say hello to the world man haha.');
-      cy.get('[type="submit"]').should('not.be.disabled');
-      cy.get('input#title[name="title"]').clear();
+    cy.get('form.inline-form').within(() => {
+      cy.get('[type="text"]').clear();
       cy.get('[type="submit"]').should('be.disabled');
     });
   })
 
-  it('Add todo task', () => {
-    // # Check first if the task is already present
-    // cy.contains(taskName).should('not.exist');
-    cy.get('form.submit-form').within(() => {
-      cy.get('input[name="title"]').should('be.empty');
-      cy.get('input[name="title"]').type(taskName);
-      cy.get('input[name="url"]').should('be.empty');
-      cy.get('input[name="url"]').type(videoName);
+  it("Write something and not disable button", () => {
+    cy.get('form.inline-form').within(() => {
+      cy.get('[type="text"]').type(taskName);
+      cy.get('[type="submit"]').should('not.be.disabled');
+    });
+  })
+
+  it("Todo can be added at the end of the todo list", () => {
+    // cy.viewport(1280, 2000);
+    cy.get('form.inline-form').within(() => {
+      cy.get('[type="text"]').type(taskName);
       cy.get('[type="submit"]').click();
-    })
+    });
     // # Check if the task is added to the list
-    cy.get('.container-element').eq(-2).within(() => {
+    cy.get('li.todo-item').last().within(() => {
       cy.contains(taskName, { timeout: 2000 }).should('exist');
     });
-  });
+  })
 });
 
 describe('R8UC2', () => {
   beforeEach('loadfixture', () => {
-    cy.loginWithFixture(); // Use the custom command
-    // # Check if container-element has at least one element
-    cy.get('.container-element').should('have.length.greaterThan', 0);
-    cy.get('.container-element').first().within(() => {
-      cy.get('a').click();
-    });
+    cy.loginWithFixture();
+    cy.fistTaskFixture();
   });
 
   it('Set todo task as active', () => {
@@ -75,13 +105,8 @@ describe('R8UC2', () => {
 describe('R8UC3', () => {
 
   beforeEach('loadfixture', () => {
-    cy.loginWithFixture(); // Use the custom command
-    // # Check if container-element has at least one element
-    cy.get('.container-element').should('have.length.greaterThan', 0);
-    cy.get('.container-element').first().within(() => {
-      cy.get('a').click();
-    });
-    
+    cy.loginWithFixture(); 
+    cy.fistTaskFixture(); 
   });
 
   it('Remove todo task', () => {
@@ -89,28 +114,15 @@ describe('R8UC3', () => {
 
     // # Add a new todo task
     cy.get('form.inline-form').within(() => {
-      cy.get('input[type="text"]').should('be.empty');
       cy.get('input[type="text"]').type(todoName);
       cy.get('input[type="submit"]').click();
     })
     // # Check if the task is added to the list
     cy.contains('.todo-item', todoName).within(() => {
       cy.get('.remover').click()
-      // cy.get('.remover').click().click();
     });
     // # Check if the task is removed from the list
     cy.contains('.todo-item', todoName).should('not.exist');
-
-      // # Check if the task is not checked if it is, then uncheck it
-    // cy.get('.remover').then(($el) => {
-    //   cy.wrap($el).click();
-    // })
-
-    // // # Check if the task is removed from the list
-    // cy.get('.todo-item').should('not.exist');
-    // cy.get('.todo-item').within(() => {
-    //   cy.contains(todoName, { timeout: 2000 }).should('not.exist');
-    // });
   })
 })
 
