@@ -1,0 +1,36 @@
+name: Run Tests for fix Branch
+
+on:
+    push:
+        branches: ["fix"]
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v3
+
+            - name: Set up Python
+              uses: actions/setup-python@v4
+              with:
+                  python-version: "3.9"
+
+            - name: Change Directory
+              run: |
+                  cd backend
+                  echo "Current Directory: $(pwd)"
+
+            - name: Install Dependencies
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -r requirements.txt
+
+            - name: Run unit tests
+              run: |
+                pytest -m "get_email"
+
+            - name: Run integration tests
+              run: |
+                pytest -m create_collection"
