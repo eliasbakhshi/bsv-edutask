@@ -36,7 +36,7 @@ class UserController(Controller):
                 print(f'Error: more than one user found with mail {email}')
                 return users[0]
         except Exception as e:
-            raise
+            raise IndexError("None")
 
     def update(self, id, data):
         try:
