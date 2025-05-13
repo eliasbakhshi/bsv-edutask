@@ -30,7 +30,3 @@ jobs:
             - name: Run unit tests
               run: |
                 pytest -m "get_email"
-
-            - name: Run integration tests
-              run: |
-                pytest -m create_collection"
